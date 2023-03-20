@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+
+from scapy.all import *
+import os
+
+# Define network interface to capture traffic on
+iface = "eth0"
+
+# Define filter to capture only Kerberos TGS-REQ messages
+filter_str = "kerberos.msg_type == 12"
+
+# Define command to start Responder
+responder_cmd = "sudo responder -I " + iface + " -v"
+
+# Define function to start Wireshark and open captured traffic
+def open_wireshark(pcap_file):
+    cmd = "wireshark " + pcap_file
+    os.system(cmd)
+
+# Start Responder
+os.system(responder_cmd)
+
+# Start packet capture with Scapy
+pkts = sniff(filter=filter_str, iface=iface, count=10)
+
+# Write captured packets to a PCAP file
+wrpcap("tgs-req.pcap", pkts)
+
+# Open the captured traffic in Wireshark
+open_wireshark("tgs-req.pcap")
